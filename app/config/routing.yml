@@ -1,5 +1,5 @@
 dili_admin:
     resource: "@DiliAdminBundle/Controller/"
     type:     annotation
-    prefix:   /
+    prefix:   /admin
 
