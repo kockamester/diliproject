@@ -17,6 +17,8 @@
       <parameter key="DoctrineBundle">Doctrine\Bundle\DoctrineBundle\DoctrineBundle</parameter>
       <parameter key="SensioFrameworkExtraBundle">Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle</parameter>
       <parameter key="DiliAdminBundle">Dili\AdminBundle\DiliAdminBundle</parameter>
+      <parameter key="MopaBootstrapBundle">Mopa\Bundle\BootstrapBundle\MopaBootstrapBundle</parameter>
+      <parameter key="DoctrineMigrationsBundle">Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
       <parameter key="SensioGeneratorBundle">Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle</parameter>
@@ -26,7 +28,7 @@
     <parameter key="database_driver">pdo_mysql</parameter>
     <parameter key="database_host">127.0.0.1</parameter>
     <parameter key="database_port">null</parameter>
-    <parameter key="database_name">symfony</parameter>
+    <parameter key="database_name">diliproject</parameter>
     <parameter key="database_user">root</parameter>
     <parameter key="database_password">null</parameter>
     <parameter key="mailer_transport">smtp</parameter>
@@ -508,6 +510,16 @@
     <parameter key="sensio_framework_extra.converter.doctrine.class">Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DoctrineParamConverter</parameter>
     <parameter key="sensio_framework_extra.converter.datetime.class">Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DateTimeParamConverter</parameter>
     <parameter key="sensio_framework_extra.view.listener.class">Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener</parameter>
+    <parameter key="mopa_bootstrap.bootstrap.install_path">Resources/public/bootstrap</parameter>
+    <parameter key="mopa_bootstrap.twig.extension.form.class">Mopa\Bundle\BootstrapBundle\Twig\FormExtension</parameter>
+    <parameter key="mopa_bootstrap.twig.extension.icon.class">Mopa\Bundle\BootstrapBundle\Twig\IconExtension</parameter>
+    <parameter key="mopa_bootstrap.twig.extension.flash.class">Mopa\Bundle\BootstrapBundle\Twig\FlashExtension</parameter>
+    <parameter key="mopa_bootstrap.icons.icon_set">glyphicons</parameter>
+    <parameter key="mopa_bootstrap.icons.shortcut">icon</parameter>
+    <parameter key="doctrine_migrations.dir_name">C:/wamp/www/diliproject/app/DoctrineMigrations</parameter>
+    <parameter key="doctrine_migrations.namespace">Application\Migrations</parameter>
+    <parameter key="doctrine_migrations.table_name">migration_versions</parameter>
+    <parameter key="doctrine_migrations.name">Application Migrations</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -2095,6 +2107,15 @@
           </service>
         </argument>
       </call>
+      <call method="addExtension">
+        <argument type="service" id="mopa_bootstrap.twig.extension.bootstrap_form"/>
+      </call>
+      <call method="addExtension">
+        <argument type="service" id="mopa_bootstrap.twig.extension.bootstrap_icon"/>
+      </call>
+      <call method="addExtension">
+        <argument type="service" id="mopa_bootstrap.twig.extension.bootstrap_flash"/>
+      </call>
       <call method="addGlobal">
         <argument>app</argument>
         <argument type="service" id="templating.globals"/>
@@ -2236,7 +2257,7 @@
         <argument key="driver">pdo_mysql</argument>
         <argument key="host">127.0.0.1</argument>
         <argument key="port">null</argument>
-        <argument key="dbname">symfony</argument>
+        <argument key="dbname">diliproject</argument>
         <argument key="user">root</argument>
         <argument key="password">null</argument>
         <argument key="charset">UTF8</argument>
@@ -2296,7 +2317,9 @@
       <argument type="service">
         <service class="Doctrine\ORM\Configuration" public="false">
           <call method="setEntityNamespaces">
-            <argument type="collection"/>
+            <argument type="collection">
+              <argument key="DiliAdminBundle">Dili\AdminBundle\Entity</argument>
+            </argument>
           </call>
           <call method="setMetadataCacheImpl">
             <argument type="service">
@@ -2327,7 +2350,19 @@
           </call>
           <call method="setMetadataDriverImpl">
             <argument type="service">
-              <service class="Doctrine\ORM\Mapping\Driver\DriverChain" public="false"/>
+              <service class="Doctrine\ORM\Mapping\Driver\DriverChain" public="false">
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\AnnotationDriver" public="false">
+                      <argument type="service" id="annotation_reader"/>
+                      <argument type="collection">
+                        <argument>C:\wamp\www\diliproject\src\Dili\AdminBundle\Entity</argument>
+                      </argument>
+                    </service>
+                  </argument>
+                  <argument>Dili\AdminBundle\Entity</argument>
+                </call>
+              </service>
             </argument>
           </call>
           <call method="setProxyDir">
@@ -2399,6 +2434,26 @@
       </argument>
       <argument type="service" id="security.authentication.trust_resolver" on-invalid="null"/>
       <argument type="service" id="security.role_hierarchy" on-invalid="null"/>
+    </service>
+    <service id="mopa_bootstrap.twig.extension.bootstrap_form" class="Mopa\Bundle\BootstrapBundle\Twig\FormExtension">
+      <tag name="twig.extension"/>
+    </service>
+    <service id="mopa_bootstrap.twig.extension.bootstrap_icon" class="Mopa\Bundle\BootstrapBundle\Twig\IconExtension">
+      <tag name="twig.extension"/>
+      <argument>glyphicons</argument>
+      <argument>icon</argument>
+    </service>
+    <service id="mopa_bootstrap.twig.extension.bootstrap_flash" class="Mopa\Bundle\BootstrapBundle\Twig\FlashExtension">
+      <tag name="twig.extension"/>
+      <argument type="collection">
+        <argument key="success">success</argument>
+        <argument key="error">danger</argument>
+        <argument key="danger">danger</argument>
+        <argument key="warning">warning</argument>
+        <argument key="warn">warning</argument>
+        <argument key="info">info</argument>
+        <argument key="notice">info</argument>
+      </argument>
     </service>
     <service id="web_profiler.controller.profiler" class="Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController">
       <argument type="service" id="router" on-invalid="null"/>
@@ -2698,6 +2753,10 @@
       <call method="addPath">
         <argument>C:\wamp\www\diliproject\src\Dili\AdminBundle/Resources/views</argument>
         <argument>DiliAdmin</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\wamp\www\diliproject\vendor\mopa\bootstrap-bundle\Mopa\Bundle\BootstrapBundle/Resources/views</argument>
+        <argument>MopaBootstrap</argument>
       </call>
       <call method="addPath">
         <argument>C:\wamp\www\diliproject\vendor\symfony\symfony\src\Symfony\Bundle\WebProfilerBundle/Resources/views</argument>
